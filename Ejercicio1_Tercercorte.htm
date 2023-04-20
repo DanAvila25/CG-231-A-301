@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+		<script type="module">
+			import * as THREE from 'https://unpkg.com/three/build/three.module.js';
+
+			const scene = new THREE.Scene();
+			const camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+            const renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+            //Grid Helper: Rejilla para establecer un piso
+            const size = 10;
+            const divisions = 20;
+
+            const gridHelper = new THREE.GridHelper( size, divisions );
+            scene.add( gridHelper );
+            
+            //Axes Helper: Linea en el eje x, y, z, ayuda a entender la perspectiva
+            const axesHelper = new THREE.AxesHelper( 2 );
+            axesHelper.setColors( 0xffff00,  0xff0000, 0x0000ff);
+            scene.add( axesHelper );
+
+            /*Luz direccional: Una luz directa apuntando desde arriba al cubo de en medio
+            //Crea un reflejo en la parte superior de los cubos
+            //Codigo apoyado de:https://programmerclick.com/article/81771039238/
+            */
+            var pointColor = "#ff5808";
+            var directionalLight = new THREE.DirectionalLight(pointColor);
+            directionalLight.position.set(1, 2, 0);
+            directionalLight.castShadow = true;
+            directionalLight.shadowCameraNear = 2;
+            directionalLight.shadowCameraFar = 200;
+            directionalLight.shadowCameraLeft = -50;
+            directionalLight.shadowCameraRight = 50;
+            directionalLight.shadowCameraTop = 50;
+            directionalLight.shadowCameraBottom = -50;
+        
+            directionalLight.distance = 15;
+            directionalLight.intensity = 30;
+            directionalLight.shadowMapHeight = 1024;
+            directionalLight.shadowMapWidth = 1024;
+        
+            scene.add(directionalLight);
+
+            /*Luz Ambiental: genera una iluminacion calida simulando la luz del sol
+            //Codigo apoyado de:https://programmerclick.com/article/81771039238/
+            */
+            var ambiColor = "#0c0c0c";
+            var ambientLight = new THREE.AmbientLight(ambiColor,8);
+            scene.add(ambientLight);
+
+            //Cubos
+            function cubo(base, altura, ancho, col) {
+                const geometry = new THREE.BoxGeometry(base, altura, ancho);
+                const material = new THREE.MeshToonMaterial({ color: col });
+                return new THREE.Mesh(geometry, material);
+            }
+
+            const color = [0xFF0000, 0x0000FF];
+
+            var ArCub = [];
+            var n = color.length;
+            var Ancho = 1;
+            var L = 8;
+            var largo = 1;
+            for (var i = 0; i < n; i++) {
+
+                ArCub[i] = cubo(largo, L, Ancho, color[i]);
+
+            }
+
+            const group = new THREE.Group();
+            for (i = 0; i < n; i++) {
+                group.add(ArCub[i]);
+            }
+            
+            function rotacion(ejeRotacion,angulo){
+                switch (ejeRotacion) {
+                case "x":
+                    ArCub[1].rotation.x = (angulo);
+                    break;
+                case "y":
+                    ArCub[1].rotation.y = (angulo);
+                    break;
+                case "z":
+                    ArCub[1].rotation.z = (angulo);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            function traslacion(i,posicionX, posicionY, posicionZ){
+                ArCub[i].position.set(posicionX,posicionY,posicionZ);
+            }
+
+            ArCub[0].scale.set(0.2,0.2,0.2);
+            traslacion(0,0,0.8,0);
+            
+            ArCub[1].scale.set(0.2,0.2,0.2);
+            traslacion(1,0.25,2.4,0);
+            rotacion("z",2.8);
+
+            scene.add(group);
+
+            var alfa = 0;
+            var beta = -0.6;
+            var gamma = -0.6;
+
+            group.rotation.set(alfa,beta,gamma)
+
+            //Posicion de la camara
+            camera.position.x = 0.5;
+            camera.position.y = 1.5;
+			camera.position.z = 5;
+
+
+            //Anima los cubos para que roten sobre su propio eje:
+            renderer.render( scene, camera );
+
+
+		</script>
+	</body>
+</html>
